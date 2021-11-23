@@ -7,9 +7,12 @@ This is a demonstration for how to use Dapr with polyglot programming approach
 
 ```
 PRODUCT_HOST=localhost # if on Docker then it should be 0.0.0.0
+
 POSTGRES_USER=northwind
 POSTGRES_PASSWORD=<your password>
 POSTGRES_DB=northwind_db
+
+ProductGrpcUrl=http://localhost:50002
 ```
 - Then we can start `tye` as below
 
@@ -17,11 +20,15 @@ POSTGRES_DB=northwind_db
 > tye run
 ```
 
-# Product Catalog 
+# Product Catalog Service
 
 - REST URL: http://localhost:5002
 - gRPC URL: tcp://localhost:50002
 - Reference to [how to run](product-catalog/README.md)
+
+# Sale Payment Service
+
+- REST URL: http://localhost:5003
 
 # gRPC
 
