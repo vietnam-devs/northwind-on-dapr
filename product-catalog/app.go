@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -17,20 +16,9 @@ type App struct {
 	Db     *sqlx.DB
 }
 
-func (a *App) Initialize(user, password, dbname string) {
-	connString :=
-		fmt.Sprintf("user=%s password=%s host=localhost dbname=%s sslmode=disable", user, password, dbname)
-
-	var err error
-	a.Db, err = sqlx.Connect("postgres", connString)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	initDb(a.Db)
-
+func (a *App) Initialize(user, password, host, dbname string) {
+	a.Db = connectDb(user, password, host, dbname)
 	a.Router = mux.NewRouter()
-
 	a.initializeRoutes()
 }
 

@@ -14,8 +14,22 @@ services:
 
 - name: product-catalog
   dockerFile: product-catalog/Dockerfile
+  # image: product-catalog:latest
   env_file:
     - .env
   bindings:
-  - protocol: http
+  - name: http
+    protocol: http
+    containerPort: 5002
     port: 5002
+  - name: tcp
+    protocol: tcp
+    containerPort: 50002
+    port: 50002
+
+- name: sale-payment
+  project: sale-payment/sale-payment.csproj
+  env_file:
+    - .env
+  bindings:
+    - port: 5003

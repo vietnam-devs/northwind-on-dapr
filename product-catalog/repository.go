@@ -1,8 +1,26 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/jmoiron/sqlx"
 )
+
+func connectDb(user, password, host, dbname string) (db *sqlx.DB) {
+	connString :=
+		fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable", user, password, host, dbname)
+
+	var err error
+	db, err = sqlx.Connect("postgres", connString)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	initDb(db)
+
+	return db
+}
 
 func initDb(db *sqlx.DB) {
 	_, table_check := db.Query("select * from products;")
