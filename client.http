@@ -1,0 +1,27 @@
+@host = http://localhost:5002
+
+###
+GET {{host}}/v1/products HTTP/1.1
+content-type: application/json
+
+###
+POST {{host}}/v1/products HTTP/1.1
+content-type: application/json
+
+{
+    "id": "{{$guid}}",
+    "productName": "product 3"
+}
+
+###
+@id = "1528f2b7-5ec2-4d5e-8172-96f7a608c6c6"
+PUT {{host}}/v1/products/{{id}} HTTP/1.1
+content-type: application/json
+
+{
+    "productName": "product 3 test"
+}
+
+###
+DELETE  {{host}}/v1/products/{{id}} HTTP/1.1
+content-type: application/json
