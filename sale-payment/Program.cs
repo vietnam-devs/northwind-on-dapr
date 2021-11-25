@@ -1,3 +1,6 @@
+using System.Net;
+using System.Text.Json;
+using Dapr.Client;
 using Grpc.Net.ClientFactory;
 using Northwind.Protobuf.Product;
 
@@ -14,6 +17,14 @@ builder.Services.AddGrpcClient<ProductApi.ProductApiClient>("product-client", o 
     })
     .EnableCallContextPropagation(o => o.SuppressContextNotFoundErrors = true);
 
+builder.Services.AddDaprClient(builder =>
+    builder.UseJsonSerializationOptions(
+        new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
+        }));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,26 +36,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseCloudEvents();
+
+app.MapSubscribeHandler();
 
 app.MapFallback(() => Results.Redirect("/swagger"));
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapGet("/ping", () => Results.Ok("Okay"))
+    .WithName("GetWeatherForecast");
 
 app.MapGet("/api/products", async (GrpcClientFactory grpcClientFactory) => {
     var productClient = grpcClientFactory.CreateClient<ProductApi.ProductApiClient>("product-client");
@@ -56,14 +55,15 @@ app.MapGet("/api/products", async (GrpcClientFactory grpcClientFactory) => {
     // call Dapr get products
 // });
 
-app.MapPost("/v1/order", () => {
+app.MapPost("/v1/order", async (DaprClient client) => {
     // direct call Dapr get products - product service
     // pubsub Kafka - shipping service
+    
+    //var client1 = DaprClient.CreateInvokeHttpClient(appId: "shipping");
+    //var result = await client1.GetStringAsync("/");
+    await client.PublishEventAsync("pubsub", "order", new OrderCreated(Guid.NewGuid()));
 });
 
 app.Run();
 
-record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public record struct OrderCreated(Guid Id);
