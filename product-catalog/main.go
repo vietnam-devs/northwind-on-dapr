@@ -17,12 +17,10 @@ func main() {
 	dbhost := os.Getenv("POSTGRES_HOST")
 	dbname := os.Getenv("POSTGRES_DB")
 
-	a := App{}
-	a.Initialize(user, password, dbhost, dbname)
+	go InitRestServer(user, password, dbhost, dbname, fmt.Sprintf("%s:5002", host))
 
 	s := server{}
 	s.Initialize(user, password, dbhost, dbname)
 
-	go a.RunApp(fmt.Sprintf("%s:5002", host))
 	s.RunGrpcApp(fmt.Sprintf("%s:50002", host))
 }

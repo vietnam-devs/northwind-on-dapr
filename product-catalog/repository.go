@@ -7,7 +7,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func connectDb(user, password, host, dbname string) (db *sqlx.DB) {
+var db *sqlx.DB
+
+func connectDb(user, password, host, dbname string) {
 	connString :=
 		fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable", user, password, host, dbname)
 
@@ -17,13 +19,11 @@ func connectDb(user, password, host, dbname string) (db *sqlx.DB) {
 		log.Fatal(err)
 	}
 
-	initDb(db)
-
-	return db
+	initDb()
 }
 
-func initDb(db *sqlx.DB) {
-	_, table_check := db.Query("select * from products;")
+func initDb() {
+	_, table_check := db.Query("SELECT * FROM products;")
 
 	if table_check != nil {
 		db.MustExec(schema)
@@ -35,11 +35,11 @@ func initDb(db *sqlx.DB) {
 	}
 }
 
-func (p *Products) getProducts(db *sqlx.DB) error {
+func (p *Products) getProducts() error {
 	return db.Select(p, "SELECT * FROM products ORDER BY product_name ASC")
 }
 
-func (p *Product) createProduct(db *sqlx.DB) error {
+func (p *Product) createProduct() error {
 	err := db.QueryRow(
 		"INSERT INTO products(id, product_name) VALUES($1, $2) RETURNING id",
 		p.ID, p.ProductName).Scan(&p.ID)
@@ -51,12 +51,12 @@ func (p *Product) createProduct(db *sqlx.DB) error {
 	return nil
 }
 
-func (p *Product) updateProduct(db *sqlx.DB) error {
+func (p *Product) updateProduct() error {
 	_, err := db.Exec("UPDATE products SET product_name=$1 WHERE id=$2", p.ProductName, p.ID)
 	return err
 }
 
-func (p *Product) deleteProduct(db *sqlx.DB) error {
+func (p *Product) deleteProduct() error {
 	_, err := db.Exec("DELETE FROM products WHERE id=$1", p.ID)
 	return err
 }

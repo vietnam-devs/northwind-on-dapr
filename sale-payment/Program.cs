@@ -52,6 +52,15 @@ app.MapGet("/api/products", async (GrpcClientFactory grpcClientFactory) => {
     return Results.Ok(result);
 });
 
+// app.MapGet("/api/products", async (DaprClient daprClient) => {
+    // call Dapr get products
+// });
+
+app.MapPost("/v1/order", () => {
+    // direct call Dapr get products - product service
+    // pubsub Kafka - shipping service
+});
+
 app.Run();
 
 record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)

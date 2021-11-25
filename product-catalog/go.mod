@@ -1,4 +1,4 @@
-module northwind-polyglot/product-catalog/main
+module northwind-on-dapr/product-catalog/main
 
 go 1.17
 

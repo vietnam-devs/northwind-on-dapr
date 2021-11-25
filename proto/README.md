@@ -4,7 +4,6 @@
 > protoc --go_out=plugins=grpc:../product-catalog .\product_api.proto
 ```
 
-
 # Setup tools
 
 - Download: https://github.com/protocolbuffers/protobuf/releases

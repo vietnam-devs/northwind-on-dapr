@@ -7,26 +7,27 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-type App struct {
-	Router *mux.Router
-	Db     *sqlx.DB
+var (
+	router *mux.Router
+)
+
+func InitRestServer(user, password, host, dbname, addr string) {
+	connectDb(user, password, host, dbname)
+
+	router = mux.NewRouter()
+	initializeRoutes()
+
+	log.Fatal(http.ListenAndServe(addr, router))
 }
 
-func (a *App) Initialize(user, password, host, dbname string) {
-	a.Db = connectDb(user, password, host, dbname)
-	a.Router = mux.NewRouter()
-	a.initializeRoutes()
-}
-
-func (a *App) getProducts(w http.ResponseWriter, r *http.Request) {
+func getProducts(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s", "getProducts")
 
 	products := Products{}
-	err := products.getProducts(a.Db)
+	err := products.getProducts()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +35,7 @@ func (a *App) getProducts(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, products)
 }
 
-func (a *App) createProduct(w http.ResponseWriter, r *http.Request) {
+func createProduct(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s", "createProduct")
 
 	var p Product
@@ -45,7 +46,7 @@ func (a *App) createProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := p.createProduct(a.Db); err != nil {
+	if err := p.createProduct(); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -53,7 +54,7 @@ func (a *App) createProduct(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, p)
 }
 
-func (a *App) updateProduct(w http.ResponseWriter, r *http.Request) {
+func updateProduct(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s", "updateProduct")
 
 	vars := mux.Vars(r)
@@ -72,7 +73,7 @@ func (a *App) updateProduct(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	p.ID = id.String()
 
-	if err := p.updateProduct(a.Db); err != nil {
+	if err := p.updateProduct(); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -80,7 +81,7 @@ func (a *App) updateProduct(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, p)
 }
 
-func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
+func deleteProduct(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s", "deleteProduct")
 
 	vars := mux.Vars(r)
@@ -93,7 +94,7 @@ func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
 	var p Product
 	p.ID = id.String()
 
-	if err := p.deleteProduct(a.Db); err != nil {
+	if err := p.deleteProduct(); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -113,13 +114,9 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-func (a *App) RunApp(addr string) {
-	log.Fatal(http.ListenAndServe(addr, a.Router))
-}
-
-func (a *App) initializeRoutes() {
-	a.Router.HandleFunc("/v1/products", a.getProducts).Methods("GET")
-	a.Router.HandleFunc("/v1/products", a.createProduct).Methods("POST")
-	a.Router.HandleFunc("/v1/products/{id}", a.updateProduct).Methods("PUT")
-	a.Router.HandleFunc("/v1/products/{id}", a.deleteProduct).Methods("DELETE")
+func initializeRoutes() {
+	router.HandleFunc("/v1/products", getProducts).Methods("GET")
+	router.HandleFunc("/v1/products", createProduct).Methods("POST")
+	router.HandleFunc("/v1/products/{id}", updateProduct).Methods("PUT")
+	router.HandleFunc("/v1/products/{id}", deleteProduct).Methods("DELETE")
 }

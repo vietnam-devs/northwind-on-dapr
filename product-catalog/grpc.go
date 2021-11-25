@@ -4,22 +4,19 @@ import (
 	"context"
 	"log"
 	"net"
-	pb "northwind-polyglot/product-catalog/main/northwind.proto"
+	pb "northwind-on-dapr/product-catalog/main/northwind.proto"
 
 	"google.golang.org/grpc"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
-
-var db *sqlx.DB
 
 type server struct {
 	pb.UnimplementedProductApiServer
 }
 
 func (s *server) Initialize(user, password, host, dbname string) {
-	db = connectDb(user, password, host, dbname)
+	connectDb(user, password, host, dbname)
 }
 
 func (s *server) Ping(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
@@ -31,7 +28,7 @@ func (s *server) GetProducts(ctx context.Context, in *pb.GetProductsRequest) (*p
 	log.Printf("Received: %v", "GetProducts")
 
 	products := Products{}
-	err := products.getProducts(db)
+	err := products.getProducts()
 	if err != nil {
 		log.Fatal(err)
 	}
