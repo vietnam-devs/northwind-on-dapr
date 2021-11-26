@@ -14,28 +14,23 @@ import org.springframework.stereotype.Service;
 
 import static io.cloudevents.core.CloudEventUtils.mapData;
 
-
 @Service
 public class EventService {
-    private ObjectMapper objectMapper;
+	private ObjectMapper objectMapper;
 
-    @Autowired
-    public EventService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+	@Autowired
+	public EventService(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+	}
 
-    public OrderCreated getEventOrderCreated(CloudEvent event) {
-        PojoCloudEventData<OrderCreated> cloudEventData = mapData(
-                event,
-                PojoCloudEventDataMapper.from(objectMapper, OrderCreated.class)
-        );
-        return cloudEventData.getValue();
-    }
+	public OrderCreated getEventOrderCreated(CloudEvent event) {
+		PojoCloudEventData<OrderCreated> cloudEventData = mapData(event,
+				PojoCloudEventDataMapper.from(objectMapper, OrderCreated.class));
+		return cloudEventData.getValue();
+	}
 
-    public CloudEvent getCloudEvent(byte[] body) {
-        EventFormat format = EventFormatProvider
-                .getInstance()
-                .resolveFormat(JsonFormat.CONTENT_TYPE);
-        return format.deserialize(body);
-    }
+	public CloudEvent getCloudEvent(byte[] body) {
+		EventFormat format = EventFormatProvider.getInstance().resolveFormat(JsonFormat.CONTENT_TYPE);
+		return format.deserialize(body);
+	}
 }

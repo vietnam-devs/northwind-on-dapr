@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ProcessorController {
 
-    EventService eventService;
+	EventService eventService;
 
 	@Autowired
-    public ProcessorController(EventService eventService) {
-        this.eventService = eventService;
-    }
+	public ProcessorController(EventService eventService) {
+		this.eventService = eventService;
+	}
 
-    @PostMapping("/order")
-    public void subscribe(@RequestBody(required = false) byte[] body) {
-		
+	@PostMapping("/order")
+	public void subscribe(@RequestBody(required = false) byte[] body) {
+
 		CloudEvent event = eventService.getCloudEvent(body);
-        String eventId = event.getId();
-        OrderCreated message = eventService.getEventOrderCreated(event);
+		String eventId = event.getId();
+		OrderCreated message = eventService.getEventOrderCreated(event);
 
-        log.info("Received eventId: {}, message: {}", eventId, message);
+		log.info("Received eventId: {}, message: {}", eventId, message);
 	}
 
 }

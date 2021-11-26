@@ -10,15 +10,15 @@ import vn.northwindondapr.shipping.pojo.Subscription;
 @RestController
 public class HomeController {
 
-    @GetMapping("/")
-    public String index() {
-        return "Greetings from Spring Boot!";
-    }
+	@GetMapping("/")
+	public String index() {
+		return "Greetings from Spring Boot!";
+	}
 
-    @GetMapping("/dapr/subscribe")
-    public List<Subscription> subscribe() {
-        Subscription subscription = new Subscription("pubsub", "order", "/processors/order");
-        return List.of(subscription);
-    }
-	
+	@GetMapping("/dapr/subscribe")
+	public List<Subscription> subscribe() {
+		Subscription subscription = new Subscription("pubsub", "order", "/processors/order");
+		return List.of(subscription);
+	}
+
 }
