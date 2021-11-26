@@ -1,10 +1,50 @@
-name: northwind-polyglot
-# extensions:
-# - name: dapr
-#   log-level: debug
-#   components-path: "./components/"
+name: northwind-on-dapr
+extensions:
+- name: dapr
+  log-level: debug
+  components-path: "./components/"
 
 services:
+
+- name: product-catalog
+  dockerFile: product-catalog/Dockerfile
+  # image: product-catalog:latest
+  env_file:
+    - .env
+  bindings:
+  - name: http
+    protocol: http
+    containerPort: 5002
+    port: 5002
+  - name: tcp
+    protocol: tcp
+    containerPort: 50002
+    port: 50002
+  tags:
+    - apps
+
+- name: sale-payment
+  project: sale-payment/sale-payment.csproj
+  env_file:
+    - .env
+  bindings:
+    - port: 5003
+  tags:
+    - apps
+
+- name: shipping
+  dockerFile: shipping/Dockerfile.dev
+  # dockerFile: shipping/Dockerfile
+  # image: shipping:0.0.1-SNAPSHOT
+  env_file:
+    - .env
+  bindings:
+  - name: http
+    protocol: http
+    containerPort: 5004
+    port: 5004
+  tags:
+    - apps
 
 - name: postgres
   image: debezium/postgres
@@ -13,6 +53,19 @@ services:
   bindings:
     - port: 5432
       connectionString: Server=${host};Port=${port};User Id=${env:POSTGRES_USER};Password=${env:POSTGRES_PASSWORD};
+  tags:
+    - inf
+
+- name: rabbitmq
+  image: rabbitmq:3.9.10-management-alpine
+  env_file:
+    - .env
+  bindings:
+    - name: "15672"
+      port: 15672
+    - name: "5672"
+      port: 5672
+      connectionString: amqp://${host}
   tags:
     - inf
 
@@ -77,37 +130,3 @@ services:
 #       port: 9000
 #   tags:
 #     - inf
-
-- name: product-catalog
-  dockerFile: product-catalog/Dockerfile
-  # image: product-catalog:latest
-  env_file:
-    - .env
-  bindings:
-  - name: http
-    protocol: http
-    containerPort: 5002
-    port: 5002
-  - name: tcp
-    protocol: tcp
-    containerPort: 50002
-    port: 50002
-
-- name: sale-payment
-  project: sale-payment/sale-payment.csproj
-  env_file:
-    - .env
-  bindings:
-    - port: 5003
-
-- name: shipping
-  dockerFile: shipping/Dockerfile.dev
-  # dockerFile: shipping/Dockerfile
-  # image: shipping:0.0.1-SNAPSHOT
-  env_file:
-    - .env
-  bindings:
-  - name: http
-    protocol: http
-    containerPort: 5004
-    port: 5004

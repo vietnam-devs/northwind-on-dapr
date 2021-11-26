@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package northwind;
 
-option go_package = "product-catalog/proto";
+option go_package = "github.com/vietnam-devs/northwind-on-dapr/protos";
 option csharp_namespace = "Northwind.Protobuf.Product";
 
 service ProductApi {

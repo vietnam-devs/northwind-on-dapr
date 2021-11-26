@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\proto\product_api.proto" Link="Protos\product_api.proto" AdditionalImportDirs="..\proto\" />
+    <Protobuf Include="..\protos\product_api.proto" Link="Protos\product_api.proto" AdditionalImportDirs="..\protos\" />
   </ItemGroup>
 
 </Project>
