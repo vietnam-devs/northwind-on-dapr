@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package northwind;
 
-option go_package = "northwind.proto";
+option go_package = "product-catalog/proto";
 option csharp_namespace = "Northwind.Protobuf.Product";
 
 import "google/protobuf/empty.proto";

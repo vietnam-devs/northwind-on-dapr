@@ -4,13 +4,9 @@
 // 	protoc        v3.19.1
 // source: product_api.proto
 
-package northwind_proto
+package proto
 
 import (
-	context "context"
-	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/emptypb"
@@ -292,11 +288,11 @@ var file_product_api_proto_rawDesc = []byte{
 	0x74, 0x68, 0x77, 0x69, 0x6e, 0x64, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63,
 	0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x6e, 0x6f, 0x72, 0x74,
 	0x68, 0x77, 0x69, 0x6e, 0x64, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74,
-	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x2e, 0x5a, 0x0f, 0x6e,
-	0x6f, 0x72, 0x74, 0x68, 0x77, 0x69, 0x6e, 0x64, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0xaa, 0x02,
-	0x1a, 0x4e, 0x6f, 0x72, 0x74, 0x68, 0x77, 0x69, 0x6e, 0x64, 0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x34, 0x5a, 0x15, 0x70,
+	0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2d, 0x63, 0x61, 0x74, 0x61, 0x6c, 0x6f, 0x67, 0x2f, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0xaa, 0x02, 0x1a, 0x4e, 0x6f, 0x72, 0x74, 0x68, 0x77, 0x69, 0x6e, 0x64,
+	0x2e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63,
+	0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -417,120 +413,4 @@ func file_product_api_proto_init() {
 	file_product_api_proto_rawDesc = nil
 	file_product_api_proto_goTypes = nil
 	file_product_api_proto_depIdxs = nil
-}
-
-// Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConnInterface
-
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
-
-// ProductApiClient is the client API for ProductApi service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type ProductApiClient interface {
-	Ping(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
-	GetProducts(ctx context.Context, in *GetProductsRequest, opts ...grpc.CallOption) (*GetProductsResponse, error)
-}
-
-type productApiClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewProductApiClient(cc grpc.ClientConnInterface) ProductApiClient {
-	return &productApiClient{cc}
-}
-
-func (c *productApiClient) Ping(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error) {
-	out := new(HelloReply)
-	err := c.cc.Invoke(ctx, "/northwind.ProductApi/Ping", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *productApiClient) GetProducts(ctx context.Context, in *GetProductsRequest, opts ...grpc.CallOption) (*GetProductsResponse, error) {
-	out := new(GetProductsResponse)
-	err := c.cc.Invoke(ctx, "/northwind.ProductApi/GetProducts", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// ProductApiServer is the server API for ProductApi service.
-type ProductApiServer interface {
-	Ping(context.Context, *HelloRequest) (*HelloReply, error)
-	GetProducts(context.Context, *GetProductsRequest) (*GetProductsResponse, error)
-}
-
-// UnimplementedProductApiServer can be embedded to have forward compatible implementations.
-type UnimplementedProductApiServer struct {
-}
-
-func (*UnimplementedProductApiServer) Ping(context.Context, *HelloRequest) (*HelloReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
-}
-func (*UnimplementedProductApiServer) GetProducts(context.Context, *GetProductsRequest) (*GetProductsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetProducts not implemented")
-}
-
-func RegisterProductApiServer(s *grpc.Server, srv ProductApiServer) {
-	s.RegisterService(&_ProductApi_serviceDesc, srv)
-}
-
-func _ProductApi_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProductApiServer).Ping(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/northwind.ProductApi/Ping",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductApiServer).Ping(ctx, req.(*HelloRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProductApi_GetProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetProductsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProductApiServer).GetProducts(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/northwind.ProductApi/GetProducts",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductApiServer).GetProducts(ctx, req.(*GetProductsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var _ProductApi_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "northwind.ProductApi",
-	HandlerType: (*ProductApiServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Ping",
-			Handler:    _ProductApi_Ping_Handler,
-		},
-		{
-			MethodName: "GetProducts",
-			Handler:    _ProductApi_GetProducts_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "product_api.proto",
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
-	pb "northwind-on-dapr/product-catalog/main/northwind.proto"
+	pb "northwind-on-dapr/product-catalog/main/proto"
 
 	"google.golang.org/grpc"
 
