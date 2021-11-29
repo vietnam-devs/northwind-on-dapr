@@ -4,7 +4,8 @@ import (
 	"context"
 	"log"
 	"net"
-	pb "northwind-on-dapr/product-catalog/main/proto"
+
+	pb "github.com/vietnam-devs/northwind-on-dapr/product-catalog/protos"
 
 	"google.golang.org/grpc"
 

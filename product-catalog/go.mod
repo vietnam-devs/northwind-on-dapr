@@ -1,4 +1,4 @@
-module northwind-on-dapr/product-catalog/main
+module github.com/vietnam-devs/northwind-on-dapr/product-catalog
 
 go 1.17
 

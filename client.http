@@ -5,6 +5,10 @@ GET {{host}}/v1/products HTTP/1.1
 content-type: application/json
 
 ###
+GET http://localhost:5004/dapr/subscribe HTTP/1.1
+content-type: application/json
+
+###
 POST {{host}}/v1/products HTTP/1.1
 content-type: application/json
 

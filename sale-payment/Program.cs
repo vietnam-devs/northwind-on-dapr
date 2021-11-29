@@ -1,7 +1,11 @@
+using System.Text.Json;
+using Dapr.Client;
 using Grpc.Net.ClientFactory;
 using Northwind.Protobuf.Product;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddJsonConsole();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -14,6 +18,14 @@ builder.Services.AddGrpcClient<ProductApi.ProductApiClient>("product-client", o 
     })
     .EnableCallContextPropagation(o => o.SuppressContextNotFoundErrors = true);
 
+builder.Services.AddDaprClient(builder =>
+    builder.UseJsonSerializationOptions(
+        new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
+        }));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,47 +35,43 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCloudEvents();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapSubscribeHandler();
 
 app.MapFallback(() => Results.Redirect("/swagger"));
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapGet("/ping", () => Results.Ok("Okay"))
+    .WithName("GetWeatherForecast");
 
-app.MapGet("/api/products", async (GrpcClientFactory grpcClientFactory) => {
+app.MapGet("/api/products", async (GrpcClientFactory grpcClientFactory) =>
+{
     var productClient = grpcClientFactory.CreateClient<ProductApi.ProductApiClient>("product-client");
     var result = await productClient.GetProductsAsync(new GetProductsRequest());
     return Results.Ok(result);
 });
 
-// app.MapGet("/api/products", async (DaprClient daprClient) => {
-    // call Dapr get products
+// app.MapGet("/api/products", async () => {
+//     var client = DaprClient.CreateInvokeHttpClient(appId: "product-catalog");
+//     var result = await client.GetStringAsync("/v1/products");
+//     return Results.Ok(result);
 // });
 
-app.MapPost("/v1/order", () => {
+app.MapPost("/v1/order", async (DaprClient client) =>
+{
     // direct call Dapr get products - product service
     // pubsub Kafka - shipping service
+
+    await client.PublishEventAsync("pubsub", "order", new OrderCreated(Guid.NewGuid()));
 });
+
+app.MapPost("/api/v1/subscribers/order-created", (OrderCreated message) =>
+    {
+        app.Logger.LogInformation("Received message");
+        return Results.Ok(true);
+    })
+    .WithTopic("pubsub", "order");
 
 app.Run();
 
-record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public record OrderCreated(Guid Id);
