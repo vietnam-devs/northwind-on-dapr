@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Dapr.Client;
+using Grpc.Core;
+using Grpc.Net.Client;
 using Grpc.Net.ClientFactory;
 using Northwind.Protobuf.Product;
 
@@ -51,26 +53,38 @@ app.MapGet("/api/products", async (GrpcClientFactory grpcClientFactory) =>
     return Results.Ok(result);
 });
 
-// app.MapGet("/api/products", async () => {
-//     var client = DaprClient.CreateInvokeHttpClient(appId: "product-catalog");
-//     var result = await client.GetStringAsync("/v1/products");
+// app.MapGet("/api/products", async () =>
+// {
+//     var port = Environment.GetEnvironmentVariable("DAPR_GRPC_PORT") ?? "50003";
+//     var serverAddress = $"http://localhost:{port}";
+//     var channel = GrpcChannel.ForAddress(serverAddress);
+//     var client = new ProductApi.ProductApiClient(channel);
+
+//     var metaData = new Metadata { { "dapr-app-id", "product-catalog" } };
+//     var result = await client.GetProductsAsync(new GetProductsRequest(), metaData);
 //     return Results.Ok(result);
 // });
 
-app.MapPost("/v1/order", async (DaprClient client) =>
+app.MapGet("/api/shipping", async (DaprClient client) =>
 {
-    // direct call Dapr get products - product service
-    // pubsub Kafka - shipping service
-
-    await client.PublishEventAsync("pubsub", "order", new OrderCreated(Guid.NewGuid()));
+    var result = await client.InvokeMethodAsync<object>(httpMethod: HttpMethod.Get, "shipping", "/");
+    return Results.Ok(result);
 });
 
-app.MapPost("/api/v1/subscribers/order-created", (OrderCreated message) =>
-    {
-        app.Logger.LogInformation("Received message");
-        return Results.Ok(true);
-    })
-    .WithTopic("pubsub", "order");
+// app.MapPost("/v1/order", async (DaprClient client) =>
+// {
+//     // direct call Dapr get products - product service
+//     // pubsub Kafka - shipping service
+
+//     await client.PublishEventAsync("pubsub", "order", new OrderCreated(Guid.NewGuid()));
+// });
+
+// app.MapPost("/api/v1/subscribers/order-created", (OrderCreated message) =>
+//     {
+//         app.Logger.LogInformation("Received message");
+//         return Results.Ok(true);
+//     })
+//     .WithTopic("pubsub", "order");
 
 app.Run();
 

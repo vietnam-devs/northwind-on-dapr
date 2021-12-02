@@ -1,30 +1,20 @@
 name: northwind-on-dapr
-extensions:
-- name: dapr
-  log-level: debug
-  components-path: "./components/"
 
 services:
 
-- name: product-catalog
-  dockerFile: product-catalog/Dockerfile
-  # image: product-catalog:latest
+- name: product-catalog  
+  executable: dapr
+  args: run --app-id product-catalog --app-port 50002 --components-path ..\components\ --config ..\components\config.yaml -- go run . 
+  workingDirectory: ./product-catalog
   env_file:
-    - .env
-  bindings:
-  - name: http
-    protocol: http
-    containerPort: 5002
-    port: 5002
-  - name: tcp
-    protocol: tcp
-    containerPort: 50002
-    port: 50002
+    - .env  
   tags:
     - apps
 
 - name: sale-payment
-  project: sale-payment/sale-payment.csproj
+  executable: dapr
+  args: run --app-id sale-payment --app-port 5003 --dapr-grpc-port 50003 --components-path ..\components\ --config ..\components\config.yaml -- dotnet run 
+  workingDirectory: ./sale-payment
   env_file:
     - .env
   bindings:
@@ -33,16 +23,13 @@ services:
     - apps
 
 - name: shipping
-  dockerFile: shipping/Dockerfile.dev
-  # dockerFile: shipping/Dockerfile
-  # image: shipping:0.0.1-SNAPSHOT
+  executable: dapr
+  args: run --app-id shipping --app-port 5004 --components-path ..\components\ --config ..\components\config.yaml -- mvn spring-boot:run 
+  workingDirectory: ./shipping
   env_file:
     - .env
   bindings:
-  - name: http
-    protocol: http
-    containerPort: 5004
-    port: 5004
+  - protocol: http
   tags:
     - apps
 

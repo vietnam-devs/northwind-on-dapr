@@ -21,12 +21,12 @@ func (s *server) Initialize(user, password, host, dbname string) {
 }
 
 func (s *server) Ping(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
-	log.Printf("Received: %v", in.GetName())
+	log.Fatalf("Grpc-Received: %v", in.GetName())
 	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
 
 func (s *server) GetProducts(ctx context.Context, in *pb.GetProductsRequest) (*pb.GetProductsResponse, error) {
-	log.Printf("Received: %v", "GetProducts")
+	log.Printf("Grpc-Received: %v", "GetProducts")
 
 	products := Products{}
 	err := products.getProducts()

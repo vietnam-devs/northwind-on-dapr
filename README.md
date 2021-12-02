@@ -14,11 +14,53 @@ POSTGRES_DB=northwind_db
 
 ProductGrpcUrl=http://localhost:50002
 ```
-- Then we can start `tye` as below
+## Local run - using Tye only
 
 ```bash
 > tye run
 ```
+## Local run and debug manually
+
+- Run external services using Tye
+```bash
+> tye run --tags inf
+```
+Once external services such as postgres, rabbitMQ,... are started, continue to next commmands to launch microservices
+- Run the `go-app` (product-catalog) service
+```bash
+> cd ./product-catalog
+> dapr run --app-id product-catalog --app-port 50002 --components-path ..\components\ --config ..\components\config.yaml -- go run .
+```
+- Run the `dotnet-core-app` (sale-payment) service
+```bash
+> cd ./sale-payment
+> dapr run --app-id sale-payment --app-port 5003 --dapr-grpc-port 50003 --components-path ..\components\ --config ..\components\config.yaml -- dotnet watch run
+```
+- Run the `java-app` (shipping) service
+```bash
+> cd ./sale-payment
+> dapr run --app-id shipping --app-port 5004 --components-path ..\components\ --config ..\components\config.yaml -- mvn spring-boot:run
+```
+
+# Invoke API using Dapr CLI
+## `sale-payment` service
+- Invoke `/ping`
+```bash
+dapr invoke --app-id sale-payment -m /ping -v Get
+```
+- Get all products of `product-catalog` service via `sale-payment` service using grpc proxy feature
+```bash
+dapr invoke --app-id sale-payment -m /api/products -v Get
+```
+## `shipping` service
+- Invoke `/`
+```bash
+dapr invoke --app-id shipping -m / -v Get
+```
+
+# Observability
+## Distributed tracing
+It is enabled by default by `Dapr`; browse the url `http://localhost:9411` to inspect any distributed trace from all microservices
 
 # Product Catalog Service
 

@@ -12,7 +12,7 @@ public class HomeController {
 
 	@GetMapping("/")
 	public String index() {
-		return "Greetings from Spring Boot!";
+		return "{\"data\": \"Greetings from Spring Boot!\"}";
 	}
 
 	@GetMapping("/dapr/subscribe")
